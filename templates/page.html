@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linguistic Translator</title>
+    <style>
+        body {
+            margin: 5px;
+            margin-left: 0;
+            margin-right: 0;
+            font-family: 'Times New Roman', Times, serif;
+            background-image: url('static/6.jpeg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white; /* Adjust text color for better contrast */
+        }
+
+        header {
+            margin-bottom: 35px;
+            background-color: #1F51FF;
+            color: white;
+            text-align: center;
+            padding: 2px;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .header-buttons {
+            position: absolute;
+            margin-top: 20px;
+            right: 20px;
+            display: flex;
+        }
+
+        .header-buttons button {
+            margin-left: 15px;
+            background-color: #1F51FF;
+            color: white;
+            border: #00bfff;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 50%;
+            font-size: small;
+            font-style: italic;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .header-buttons button:hover {
+            background-color: #0080ff;
+        }
+
+        main {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            justify-content: space-evenly;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        select {
+            height: 40px;
+            box-sizing: border-box;
+            width: 300px;
+            color: black;
+            background-color: rgba(255, 255, 255, 0.9); /* Adjust the alpha value for better contrast */
+            font-size: small;
+            padding: 10px;
+            border-style: none;
+            border-color: #E5E4E2;
+            border-radius: 10px;
+            font-size: medium;
+        }
+
+        textarea {
+            width: 300px;
+            height: 150px;
+            padding: 10px;
+            margin-top: 20px;
+            position: relative;
+            border-radius: 5px;
+            border-color: black;
+            color: black;
+            background-color: rgba(255, 255, 255, 0.9); /* Adjust the alpha value for better contrast */
+        }
+
+        button {
+            margin-left: 480px;
+            width: 600px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #1F51FF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            align-content: center;
+            justify-content: center;
+            border-color: black;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0080ff;
+        }
+
+        #additionalPhrasesTextArea {
+            margin-top: 20px;
+            margin-left: 28px;
+            width: 600px;
+            height: 180px;
+            padding: 10px;
+            box-sizing: border-box;
+            pointer-events: none; /* Make it readonly */
+            color: black;
+            background-color: rgba(255, 255, 255, 0.9); /* Adjust the alpha value for better contrast */
+
+        }
+        #sourceTextArea::placeholder{
+            color: black;
+        }
+        #resultTextArea::placeholder{
+            color: black;
+        }
+        #additionalPhrasesTextArea::placeholder{
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Linguistic Translator</h1>
+        <div class="header-buttons">
+            <button onclick="location.href='india'">India</button>
+            <button onclick="location.href='world'">World</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="input-container">
+            <select id="languageDropdown">
+                <option value="" disabled selected>Select language</option>
+                <!-- Dropdown options will be populated dynamically -->
+            </select>
+        <div>
+            <textarea id="sourceTextArea" placeholder="Enter Text" style="font-size: x-large; color: black;" ></textarea>
+        </div>
+        </div>
+
+        <div class="input-container">
+            <select id="languageDropdown2">
+                <option value="" disabled selected>Select language</option>
+                <!-- Dropdown options will be populated dynamically -->
+            </select>
+        <div>
+            <textarea id="resultTextArea" placeholder="Translation" style="font-size: x-large; color: black;" disabled></textarea>
+        </div>
+    </div>
+
+    </main>
+    <button id="submitButton" style="font-size: large;">Translate</button>
+    <div class="input-container">
+        <textarea id="additionalPhrasesTextArea" style="font-size: large;" placeholder="Additional words and their translations" readonly></textarea>
+    </div>
+
+    <script>
+        // Fetch the content of the text file
+        fetch('/static/languages.txt')
+            .then(response => response.text())
+            .then(data => {
+                // Split the text file content into an array of lines
+                const languageLines = data.split('\n');
+
+                // Get the dropdown elements
+                const dropdown1 = document.getElementById('languageDropdown');
+                const dropdown2 = document.getElementById('languageDropdown2');
+
+                // Populate the dropdown menus with options
+                languageLines.forEach(languageLine => {
+                    // Split each line into an array of parts
+                    const parts = languageLine.split(/\s+/); // Split on one or more spaces
+                    const languageName = parts[0].trim(); // Take the first part (language name)
+
+                    // Create an option element for each language
+                    const option1 = document.createElement('option');
+                    option1.value = languageName;
+                    option1.text = languageName;
+                    dropdown1.appendChild(option1);
+
+                    const option2 = document.createElement('option');
+                    option2.value = languageName;
+                    option2.text = languageName;
+                    dropdown2.appendChild(option2);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+        // Add an event listener to the submit button
+        const submitButton = document.getElementById('submitButton');
+        submitButton.addEventListener('click', function () {
+            // Get selected values from the dropdowns and text from the textarea
+            const sourceLang = document.getElementById('languageDropdown').value;
+            const targetLang = document.getElementById('languageDropdown2').value;
+            const sentence = document.getElementById('sourceTextArea').value;
+
+            // Fetch data from the server
+            fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `sourceLang=${sourceLang}&targetLang=${targetLang}&sentence=${sentence}`,
+            })
+                .then(response => response.text())
+                .then(data => {
+                    // Split the received data into lines
+                    const lines = data.split('\n');
+
+                    // Update the result textarea with the translated text
+                    document.getElementById('resultTextArea').value = lines[0]; // Primary translation
+
+                    // Update the textarea with additional words and translations
+                    const additionalPhrases = lines.slice(1).map(line => {
+                        const parts = line.split(' - ');
+                        const original = parts[0];
+                        const translated = parts[1];
+                        // Additional translation step for each phrase to the chosen source language and then to the target language
+                        const translatedToSourceLang = translateToSourceLanguage(original, targetLang, sourceLang);
+                        const finalTranslation = translateText(translatedToSourceLang, sourceLang, targetLang);
+                        return `${finalTranslation} - ${translated}`;
+                    }).join('\n');
+                    document.getElementById('additionalPhrasesTextArea').value = additionalPhrases;
+                })
+                .catch(error => console.error('Error fetching translation:', error));
+        });
+
+        // Function to translate a phrase to the source language
+        function translateToSourceLanguage(phrase, fromLang, toLang) {
+            // You can use a translation library or API here to perform the translation
+            // For simplicity, I'll assume a function translateText is available
+            const translatedText = translateText(phrase, fromLang, toLang);
+            return translatedText;
+        }
+
+        // Function to translate text (replace it with your actual translation logic or API)
+        function translateText(text, fromLang, toLang) {
+            // Replace this with your translation logic
+            // For now, let's assume a simple reverse translation
+            const reversedText = text.split('').reverse().join('');
+            return reversedText;
+        }
+    </script>
+
+</body>
+</html>
+    
